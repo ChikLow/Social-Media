@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <h2>Register profile</h2>
+
+    <form action="" method="post" style="max-width:500px;" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{form.as_div}}
+
+        <button type="submit" class="btn btn-dark my-2 me-2 btn-lg">Submit</button>
+        <a href="{% url 'login' %}" class="btn btn-secondary my-2 btn-lg">Login in account</a>
+
+    </form>
+
+{% endblock %}

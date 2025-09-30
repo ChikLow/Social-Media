@@ -1,1 +1,38 @@
 <!--from group project-->
+
+{% extends 'base.html' %}
+
+{% block title %}Редагування профілю{% endblock %}
+{% block content %}
+<div class="container">
+    <h2 class="text-center my-4">Редагування профілю</h2>
+
+    <form method="post" class="p-4 border rounded bg-light shadow-sm">
+        {% csrf_token %}
+        <!-- Виведення помилок -->
+        {% if form.errors %}
+            <div class="alert alert-danger">
+                <strong>Помилка!</strong> Перевірте дані та спробуйте ще раз.
+                <ul>
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <li>{{ field.label }}: {{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        <!-- Поля форми -->
+        {{form.as_div}}
+
+        <!-- Кнопка для збереження -->
+        <button type="submit" class="btn btn-primary w-100">Зберегти</button>
+    </form>
+
+    <!-- Повернення до профілю -->
+    <div class="text-center mt-3">
+        <a href="{% url 'profile' %}" class="btn btn-secondary">Назад до профілю</a>
+    </div>
+</div>
+{% endblock %}

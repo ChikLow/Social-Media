@@ -9,9 +9,11 @@ class User(AbstractUser):
     )
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='user')
     
-    bio = models.TextField(blank=True)
-    avatar = models.ImageField(upload_to="avatars/", blank=True, null=True)
-    birth_date = models.DateField(blank=True, null=True)
+    first_name = models.CharField(max_length=150, blank=True, verbose_name="Ім'я")
+    last_name = models.CharField(max_length=150, blank=True, verbose_name='Прізвище')
+    bio = models.TextField(blank=True, verbose_name='Опис')
+    avatar = models.ImageField(upload_to="avatars/", blank=True, null=True, verbose_name='Аватар')
+    birth_date = models.DateField(blank=True, null=True, verbose_name='Дата народження')
     
 
     def __str__(self):

@@ -1,76 +1,63 @@
 {% extends 'base.html' %}
-{% load static %}
 
-{% block title %}{{ profile_user.username }} — Профіль{% endblock %}
+{% block title %}Профіль {{ profile.username }}{% endblock %}
 
 {% block content %}
-<div class="container py-4">
+<div class="container py-5" style=" min-height: 100vh;">
 
-  <!-- Шапка профілю -->
-  <div class="row align-items-center mb-4">
-    <div class="col-md-3 text-center">
-      {% if profile_user.avatar_url %}
-        <img src="{{ profile_user.avatar_url }}" alt="Аватар" class="profile-img mb-2">
-      {% else %}
-        <img src="{% static 'img/default_avatar.png' %}" alt="Аватар" class="profile-img mb-2">
-      {% endif %}
+  <!-- Верхня частина профілю -->
+  <div class="row mb-4">
+    <!-- Аватар -->
+    <div class="col-md-4 text-center">
+      <img src="{{ profile.avatar.url}}"
+           alt="avatar"
+           class="rounded-circle img-fluid shadow"
+           style="width: 150px; height: 150px; object-fit: cover;">
     </div>
-    <div class="col-md-9">
+
+    <!-- Інформація про користувача -->
+    <div class="col-md-8 d-flex flex-column justify-content-center">
       <div class="d-flex align-items-center mb-3">
-        <h2 class="me-3">{{ profile_user.username }}</h2>
-        {% if user == profile_user %}
-          <a href="{% url 'edit_profile' profile_user.username %}" class="btn btn-outline-secondary btn-sm me-2">Редагувати профіль</a>
-          <a href="{% url 'logout' %}" class="btn btn-outline-danger btn-sm">Вийти</a>
+        <h2 class="me-3">{{ profile.username }}</h2>
+
+        {% if request.user != profile %}
+          <!-- Якщо чужий профіль -->
+          <a href="#" class="btn btn-primary btn-sm">Підписатися</a>
+        {% else %}
+          <!-- Якщо свій профіль -->
+          <a href="{% url 'edit_profile' %}" class="btn btn-outline-light btn-sm">Редагувати профіль</a>
         {% endif %}
       </div>
-      <ul class="list-inline mb-3">
-        <li class="list-inline-item"><strong>{{ projects|length }}</strong> пости</li>
-        <li class="list-inline-item"><strong>{{ profile_user.followers_count }}</strong> підписники</li>
-        <li class="list-inline-item"><strong>{{ profile_user.following_count }}</strong> підписки</li>
-      </ul>
+
+      <!-- Статистика -->
+      <div class="d-flex mb-3">
+        <div class="me-4"><strong>{{ posts.count }}</strong> публікацій</div>
+        <div class="me-4"><strong>{{ followers|length }}</strong> підписників</div>
+        <div><strong>{{ following|length }}</strong> підписок</div>
+      </div>
+
+      <!-- Біо -->
       <div>
-        {% if profile_user.first_name or profile_user.last_name %}
-          <p><strong>{{ profile_user.first_name }} {{ profile_user.last_name }}</strong></p>
-        {% endif %}
-        {% if profile_user.bio %}
-          <p>{{ profile_user.bio }}</p>
-        {% endif %}
-        <p class="text-muted">{{ profile_user.email }}</p>
+        <strong>{{ profile.first_name }} {{ profile.last_name }}</strong><br>
+        <span class="text-muted">{{ profile.bio|default:"Ще немає біо" }}</span>
       </div>
     </div>
   </div>
 
-  <hr>
+  <hr style="border-color: #444;">
 
-  <!-- Сітка проектів / постів -->
-  <div class="row g-3">
-    {% for project in projects %}
-      <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-        <div class="card project-card h-100">
-          {% if project.project_images.first %}
-            <img src="{{ project.project_images.first.image.url }}" class="card-img-top post-img" alt="{{ project.title }}">
-          {% else %}
-            <div class="card-img-top post-img placeholder-img d-flex align-items-center justify-content-center text-muted">
-              <span>Без зображення</span>
-            </div>
-          {% endif %}
-          <div class="card-body">
-            <h5 class="card-title">{{ project.title }}</h5>
-            {% if project.desc %}
-              <p class="card-text">{{ project.desc|truncatewords:15 }}</p>
-            {% endif %}
-          </div>
-          <div class="card-footer bg-transparent border-top-0">
-            {% if project.link %}
-              <a href="{{ project.link }}" target="_blank" class="btn btn-sm btn-primary w-100">Перейти</a>
-            {% endif %}
-          </div>
-        </div>
+  <!-- Галерея постів -->
+  <div class="row g-2">
+    {% for post in posts %}
+    <div class="col-4">
+      <div class="ratio ratio-1x1">
+        <img src="{{ post.image.url }}" alt="post"
+             class="img-fluid"
+             style="object-fit: cover; border-radius: 5px;">
       </div>
+    </div>
     {% empty %}
-      <div class="col-12">
-        <p class="text-center text-muted">Поки що немає проектів.</p>
-      </div>
+    <p class="text-center mt-5">Немає публікацій</p>
     {% endfor %}
   </div>
 

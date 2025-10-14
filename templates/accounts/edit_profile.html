@@ -7,7 +7,7 @@
 <div class="container">
     <h2 class="text-center my-4">Редагування профілю</h2>
 
-    <form method="post" class="p-4 border rounded bg-light shadow-sm">
+    <form method="post" class="p-4 border rounded bg-light text-dark shadow-sm" data-bs-theme="light">
         {% csrf_token %}
         <!-- Виведення помилок -->
         {% if form.errors %}

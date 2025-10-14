@@ -12,7 +12,7 @@ class User(AbstractUser):
     first_name = models.CharField(max_length=150, blank=True, verbose_name="Ім'я")
     last_name = models.CharField(max_length=150, blank=True, verbose_name='Прізвище')
     bio = models.TextField(blank=True, verbose_name='Опис')
-    avatar = models.ImageField(upload_to="avatars/", blank=True, null=True, verbose_name='Аватар')
+    avatar = models.ImageField(upload_to="avatars/", blank=True, null=True, verbose_name='Аватар', default="user.png")
     birth_date = models.DateField(blank=True, null=True, verbose_name='Дата народження')
     
 

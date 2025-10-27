@@ -18,3 +18,12 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
+    
+
+class Subscriber(User):
+    from_user = models.ForeignKey(User,on_delete=models.CASCADE, related_name="followers")
+    to_user = models.ForeignKey(User,on_delete=models.CASCADE, related_name="follows")
+    created_at  = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('from_user', 'to_user')

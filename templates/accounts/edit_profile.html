@@ -32,7 +32,7 @@
 
     <!-- Повернення до профілю -->
     <div class="text-center mt-3">
-        <a href="{% url 'profile' %}" class="btn btn-secondary">Назад до профілю</a>
+        <a href="{% url 'profile_detail' request.user.id %}" class="btn btn-secondary">Назад до профілю</a>
     </div>
 </div>
 {% endblock %}

@@ -1,8 +1,9 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.edit import CreateView, UpdateView
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy,reverse
 from django.contrib.auth.views import LoginView
 from .forms import CustomUserCreationForm, UserProfileForm, LoginForm
+
 
 
 # Create your views here.
@@ -23,3 +24,7 @@ class ProfileUpdateView(LoginRequiredMixin, UpdateView):
 class UserLoginView(LoginView):
     template_name = 'auth_system/login.html'
     form_class = LoginForm
+
+    def get_success_url(self):
+        
+        return reverse('profile_detail', args=[self.request.user.id])

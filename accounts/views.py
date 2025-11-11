@@ -2,10 +2,11 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic import DetailView
 from django.urls import reverse_lazy,reverse
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
+from django.db.models import Q
 from django.contrib.auth.views import LoginView
 from .forms import CustomUserCreationForm, UserProfileForm, LoginForm
-from accounts.models import User
+from accounts.models import User, Subscriber
 
 
 
@@ -44,3 +45,24 @@ class ProfileView(LoginRequiredMixin, DetailView):
         if request.user.id != int(self.kwargs['pk']):
             return redirect('profile', pk=request.user.id)
         return super().get(request, *args, **kwargs)
+    
+def account_search(request):
+    q = request.GET.get('q', '').strip()
+    results = User.objects.none()
+    if q:
+        results = User.objects.filter(
+            Q(username__icontains=q) |
+            Q(first_name__icontains=q) |
+            Q(last_name__icontains=q)
+        ).distinct()
+    context = {
+        'query': q,
+        'results': results,
+    }
+    return render(request, 'search_page.html', context)
+
+
+def subscribe(request, user_id):
+    user_to_subscribe = User.objects.get(id=user_id)
+    Subscriber.objects.get_or_create(from_user=request.user, to_user=user_to_subscribe)
+    return redirect('profile_detail', pk=user_id)

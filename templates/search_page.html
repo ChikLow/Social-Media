@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Пошук "{{ query }}"{% endblock %}
+{% block content %}
+<form method="get" action="{% url 'account_search' %}" class="mb-3">
+    <div class="input-group">
+        <input type="search" name="q" value="{{ query }}" class="form-control" placeholder="Пошук акаунтів...">
+        <button class="btn btn-primary" type="submit">Пошук</button>
+    </div>
+</form>
+
+{% if query %}
+    <h5>Результати для "{{ query }}": {{ results.count }}</h5>
+{% endif %}
+
+<ul class="list-group">
+    {% for user in results %}
+    <li class="list-group-item d-flex align-items-center">
+        <img src="{% if profile.avatar %}
+            {{ profile.avatar.url}}
+            {% else %}
+             {% static 'image/user.png' %}
+             {% endif %}" alt="avatar" class="rounded-circle img-fluid shadow me-2"
+        style="width: 40px; height: 40px; object-fit: cover;">
+        <div>
+            <a href="{% url 'profile_detail' user.id %}" class="fw-bold text-decoration-none">{{ user.username }}</a>
+            <div class="text-muted small">
+                {{ user.first_name }} {{ user.last_name }}{% if user.bio %} — {{ user.bio|truncatechars:80 }}{% endif %}
+            </div>
+        </div>
+    </li>
+    {% empty %}
+    <li class="list-group-item">Нічого не знайдено.</li>
+    {% endfor %}
+
+</ul>
+
+{% endblock %}

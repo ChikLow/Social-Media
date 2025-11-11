@@ -14,11 +14,8 @@
             {{ profile.avatar.url}}
             {% else %}
              {% static 'image/user.png' %}
-             {% endif %}"
-
-           alt="avatar"
-           class="rounded-circle img-fluid shadow"
-           style="width: 150px; height: 150px; object-fit: cover;">
+             {% endif %}" alt="avatar" class="rounded-circle img-fluid shadow"
+        style="width: 150px; height: 150px; object-fit: cover;">
     </div>
 
     <!-- Інформація про користувача -->
@@ -27,11 +24,11 @@
         <h2 class="me-3">{{ profile.username }}</h2>
 
         {% if request.user != profile %}
-          <!-- Якщо чужий профіль -->
-          <a href="#" class="btn btn-primary btn-sm">Підписатися</a>
+        <!-- Якщо чужий профіль -->
+        <a href="#" class="btn btn-primary btn-sm">Підписатися</a>
         {% else %}
-          <!-- Якщо свій профіль -->
-          <a href="{% url 'edit_profile' %}" class="btn btn-outline-light btn-sm">Редагувати профіль</a>
+        <!-- Якщо свій профіль -->
+        <a href="{% url 'edit_profile' %}" class="btn btn-outline-light btn-sm">Редагувати профіль</a>
         {% endif %}
       </div>
 
@@ -57,15 +54,13 @@
     {% for post in posts %}
     <div class="col-4">
       <div class="ratio ratio-1x1">
-        <img src="{{ post.image.url }}" alt="post"
-             class="img-fluid"
-             style="object-fit: cover; border-radius: 5px;">
+        <img src="{{ post.image.url }}" alt="post" class="img-fluid" style="object-fit: cover; border-radius: 5px;">
       </div>
     </div>
     {% empty %}
     <p class="text-center mt-5">Немає публікацій</p>
     {% endfor %}
   </div>
-
+  {%include 'sidebar.html'%}
 </div>
 {% endblock %}

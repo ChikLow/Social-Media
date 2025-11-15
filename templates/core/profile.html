@@ -23,12 +23,35 @@
       <div class="d-flex align-items-center mb-3">
         <h2 class="me-3">{{ profile.username }}</h2>
 
-        {% if request.user != profile %}
-        <!-- Якщо чужий профіль -->
-        <a href="{% url 'subscribe' profile.id %}" class="btn btn-primary btn-sm">Підписатися</a>
-        {% else %}
-        <!-- Якщо свій профіль -->
+        {% if request.user == profile %}
         <a href="{% url 'edit_profile' %}" class="btn btn-outline-light btn-sm">Редагувати профіль</a>
+        {% else %}
+            {% if request.user.is_authenticated %}
+                {% if is_following %}
+                <div class="btn-group">
+                  <button type="button" class="btn btn-outline-light btn-sm">Підписано</button>
+                  <button type="button" class="btn btn-outline-light btn-sm dropdown-toggle dropdown-toggle-split"
+                          data-bs-toggle="dropdown" aria-expanded="false">
+                    <span class="visually-hidden">Меню</span>
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li class="px-3 py-2">
+                      <form method="post" action="{% url 'unsubscribe' profile.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-link text-danger p-0">Відписатися</button>
+                      </form>
+                    </li>
+                  </ul>
+                </div>
+                {% else %}
+                <form method="post" action="{% url 'subscribe' profile.id %}" class="d-inline">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-primary btn-sm">Підписатися</button>
+                </form>
+                {% endif %}
+            {% else %}
+                <a href="{% url 'login' %}" class="btn btn-primary btn-sm">Увійти щоб підписатися</a>
+            {% endif %}
         {% endif %}
       </div>
 

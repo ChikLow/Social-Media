@@ -15,13 +15,17 @@ class ProfileDetailView(DetailView):
         # Отримуємо підписників/підписки через модель Subscriber
         from accounts.models import Subscriber
 
-        # Subscribers where to_user == profile -> люди, що підписані на профіль
         followers_qs = Subscriber.objects.filter(to_user=profile).select_related('from_user')
-        # Subscribers where from_user == profile -> на кого підписаний профіль
         following_qs = Subscriber.objects.filter(from_user=profile).select_related('to_user')
 
         followers = [s.from_user for s in followers_qs]
         following = [s.to_user for s in following_qs]
+
+        # визначаємо чи поточний користувач підписаний на profile
+        is_following = False
+        request_user = getattr(self.request, 'user', None)
+        if request_user and request_user.is_authenticated:
+            is_following = Subscriber.objects.filter(from_user=request_user, to_user=profile).exists()
 
         # Спроба підвантажити пости (якщо в проєкті є модель Post)
         posts = []
@@ -40,5 +44,6 @@ class ProfileDetailView(DetailView):
             'following': following,
             'followers_count': len(followers),
             'following_count': len(following),
+            'is_following': is_following,
         })
         return context

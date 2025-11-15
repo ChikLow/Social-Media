@@ -7,6 +7,9 @@ from django.db.models import Q
 from django.contrib.auth.views import LoginView
 from .forms import CustomUserCreationForm, UserProfileForm, LoginForm
 from accounts.models import User, Subscriber
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
+from django.shortcuts import get_object_or_404
 
 
 
@@ -62,7 +65,22 @@ def account_search(request):
     return render(request, 'search_page.html', context)
 
 
+@login_required
+@require_POST
 def subscribe(request, user_id):
-    user_to_subscribe = User.objects.get(id=user_id)
+    # не дозволяємо підписуватись на себе
+    if request.user.id == user_id:
+        return redirect('profile_detail', pk=user_id)
+    user_to_subscribe = get_object_or_404(User, id=user_id)
     Subscriber.objects.get_or_create(from_user=request.user, to_user=user_to_subscribe)
+    return redirect('profile_detail', pk=user_id)
+
+@login_required
+@require_POST
+def unsubscribe(request, user_id):
+    # не дозволяємо відписуватись від себе
+    if request.user.id == user_id:
+        return redirect('profile_detail', pk=user_id)
+    user_to_unsubscribe = get_object_or_404(User, id=user_id)
+    Subscriber.objects.filter(from_user=request.user, to_user=user_to_unsubscribe).delete()
     return redirect('profile_detail', pk=user_id)

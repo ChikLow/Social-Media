@@ -13,4 +13,5 @@ urlpatterns = [
     path('profile/edit', ProfileUpdateView.as_view(), name='edit_profile'),
     path('search/', views.account_search, name='account_search'),
     path('subscribe/<int:user_id>/', views.subscribe, name='subscribe'),
+    path('unsubscribe/<int:user_id>/', views.unsubscribe, name='unsubscribe'),
 ]

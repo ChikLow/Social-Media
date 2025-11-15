@@ -20,7 +20,7 @@ class User(AbstractUser):
         return self.username
     
 
-class Subscriber(User):
+class Subscriber(models.Model):
     from_user = models.ForeignKey(User,on_delete=models.CASCADE, related_name="followers")
     to_user = models.ForeignKey(User,on_delete=models.CASCADE, related_name="follows")
     created_at  = models.DateTimeField(auto_now_add=True)

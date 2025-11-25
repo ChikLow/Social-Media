@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container py-4">
+  <h3>Створити пост</h3>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.content|as_crispy_field }}
+    
+    <div class="mb-3">
+      <label for="id_media" class="form-label">Фото/відео (можна декілька)</label>
+      <input type="file" name="media" id="id_media" multiple accept="image/*,video/*" class="form-control"/>
+    </div>
+    
+    <button type="submit" class="btn btn-primary">Опублікувати</button>
+  </form>
+</div>
+{% endblock %}

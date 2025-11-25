@@ -1,0 +1,66 @@
+<div class="card mb-3">
+  <div class="card-header d-flex align-items-center">
+    <img src="{% if post.author.avatar %}{{ post.author.avatar.url }}{% endif %}" class="rounded-circle me-2" style="width:40px;height:40px;object-fit:cover;">
+    <a href="{% url 'profile_detail' post.author.id %}" class="fw-bold text-decoration-none">{{ post.author.username }}</a>
+  </div>
+
+  {% if post.media.all %}
+    {% with media_list=post.media.all %}
+      {% if media_list|length > 1 %}
+        <div id="carousel-{{ post.id }}" class="carousel slide" data-bs-ride="carousel">
+          <div class="carousel-inner">
+            {% for m in media_list %}
+              <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                {% if m.media_type == 'image' %}
+                  <img src="{{ m.file.url }}" class="d-block w-100" style="max-height:600px;object-fit:cover;">
+                {% else %}
+                  <video controls class="d-block w-100" style="max-height:600px;object-fit:cover;">
+                    <source src="{{ m.file.url }}" type="video/mp4">
+                  </video>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+          <button class="carousel-control-prev" type="button" data-bs-target="#carousel-{{ post.id }}" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#carousel-{{ post.id }}" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          </button>
+        </div>
+      {% else %}
+        {% with m=media_list.0 %}
+          {% if m.media_type == 'image' %}
+            <img src="{{ m.file.url }}" class="img-fluid" style="max-height:600px;object-fit:cover;">
+          {% else %}
+            <video controls class="w-100" style="max-height:600px;object-fit:cover;">
+              <source src="{{ m.file.url }}" type="video/mp4">
+            </video>
+          {% endif %}
+        {% endwith %}
+      {% endif %}
+    {% endwith %}
+  {% endif %}
+
+  <div class="card-body">
+    <p>{{ post.content|linebreaksbr }}</p>
+
+    <div class="d-flex align-items-center mb-2">
+      <form method="post" action="{% url 'toggle_like' post.id %}" class="me-3">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-sm {% if post.likes.filter(user=request.user).exists %}btn-danger{% else %}btn-outline-dark{% endif %}">
+          ❤️ {{ post.like_count }}
+        </button>
+      </form>
+
+      <a href="{% url 'post_detail' post.id %}" class="text-decoration-none">Коментарі ({{ post.comment_count }})</a>
+    </div>
+
+    <!-- короткий список коментарів -->
+    <div class="small text-muted">
+      {% for c in post.comments.all|slice:":2" %}
+        <div><strong>{{ c.author.username }}</strong> {{ c.content }}</div>
+      {% endfor %}
+    </div>
+  </div>
+</div>

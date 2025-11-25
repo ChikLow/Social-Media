@@ -72,18 +72,16 @@
 
   <hr style="border-color: #444;">
 
-  <!-- Галерея постів -->
+  <!-- Пости користувача -->
   <div class="row g-2">
-    {% for post in posts %}
-    <div class="col-4">
-      <div class="ratio ratio-1x1">
-        <img src="{{ post.image.url }}" alt="post" class="img-fluid" style="object-fit: cover; border-radius: 5px;">
-      </div>
+    <div class="col-12">
+      {% for post in posts %}
+        {% include 'posts/post_card.html' with post=post %}
+      {% empty %}
+        <p class="text-center mt-5">Немає публікацій</p>
+      {% endfor %}
     </div>
-    {% empty %}
-    <p class="text-center mt-5">Немає публікацій</p>
-    {% endfor %}
   </div>
-  {%include 'sidebar.html'%}
+  {% include 'sidebar.html' %}
 </div>
 {% endblock %}

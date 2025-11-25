@@ -28,16 +28,8 @@ class ProfileDetailView(DetailView):
             is_following = Subscriber.objects.filter(from_user=request_user, to_user=profile).exists()
 
         # Спроба підвантажити пости (якщо в проєкті є модель Post)
-        posts = []
-        try:
-            from posts.models import Post
-            posts = Post.objects.filter(author=profile)
-        except Exception:
-            try:
-                posts = profile.post_set.all()
-            except Exception:
-                posts = []
-
+        from posts.models import Post
+        posts = Post.objects.filter(author=profile).prefetch_related('media','likes','comments').order_by('-created_at')
         context.update({
             'posts': posts,
             'followers': followers,

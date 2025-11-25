@@ -8,11 +8,32 @@
         integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <meta name="csrf-token" content="{{ csrf_token }}">
     <style>
         footer {
             text-align: center;
             padding: 10px;
             color: grey;
+        }
+
+        .like-anim {
+            animation: pop .28s ease;
+        }
+
+        @keyframes pop {
+            0% {
+                transform: scale(.9);
+                opacity: .7;
+            }
+
+            50% {
+                transform: scale(1.08);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1);
+            }
         }
     </style>
 </head>
@@ -30,38 +51,51 @@
         integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO"
         crossorigin="anonymous"></script>
     <script>
+function getCsrf() {
+    const m = document.querySelector('meta[name="csrf-token"]');
+    return m ? m.getAttribute('content') : '';
+}
+
 function toggleLike(postId, event) {
-    event.preventDefault();
+    if (event && typeof event.preventDefault === 'function') event.preventDefault();
 
     fetch(`/posts/${postId}/like/`, {
         method: 'POST',
         headers: {
-            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': getCsrf(),
+            'Accept': 'application/json'
         }
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) throw new Error('Network response was not ok');
+        return response.json();
+    })
     .then(data => {
         const heart = data.is_liked ? '❤️' : '🤍';
-        const text = `${heart} ${data.like_count}`;
 
-        // Elements in feed
+        // card elements (feed)
+        const iconCard = document.getElementById(`like-icon-${postId}`);
         const countCard = document.getElementById(`like-count-${postId}`);
-        // Element in detail page
-        const countDetail = document.getElementById(`like-count-detail-${postId}`);
 
-        // Apply text + animation
-        [countCard, countDetail].forEach(el => {
-            if (el) {
-                el.textContent = text;
+        if (iconCard) iconCard.textContent = heart;
+        if (countCard) {
+            countCard.textContent = data.like_count;
+            countCard.classList.remove('like-anim');
+            void countCard.offsetWidth;
+            countCard.classList.add('like-anim');
+        }
 
-                // Reset animation if it's already running
-                el.classList.remove('like-anim');
-                void el.offsetWidth; // force reflow (restart animation)
-                el.classList.add('like-anim');
-            }
-        });
+        // detail element (contains both icon and count)
+        const detail = document.getElementById(`like-count-detail-${postId}`);
+        if (detail) {
+            detail.textContent = `${heart} ${data.like_count}`;
+            detail.classList.remove('like-anim');
+            void detail.offsetWidth;
+            detail.classList.add('like-anim');
+        }
     })
-    .catch(err => console.error(err));
+    .catch(err => console.error('Like error:', err));
 }
 </script>
 </body>

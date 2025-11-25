@@ -46,14 +46,16 @@
     <p>{{ post.content|linebreaksbr }}</p>
 
     <div class="d-flex align-items-center mb-2">
-      <form method="post" action="{% url 'toggle_like' post.id %}" class="me-3">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-sm {% if post.likes.filter(user=request.user).exists %}btn-danger{% else %}btn-outline-dark{% endif %}">
-          ❤️ {{ post.like_count }}
-        </button>
-      </form>
+      <button id="like-btn-{{ post.id }}" 
+              class="btn btn-sm {% if post.is_liked_by_user %}btn-danger{% else %}btn-outline-dark{% endif %}" 
+              onclick="toggleLike({{ post.id }}, event)">
+        <span id="like-icon-{{ post.id }}">{% if post.is_liked_by_user %}❤️{% else %}🤍{% endif %}</span>
+        <span id="like-count-{{ post.id }}">{{ post.like_count }}</span>
+      </button>
 
-      <a href="{% url 'post_detail' post.id %}" class="text-decoration-none">Коментарі ({{ post.comment_count }})</a>
+      <a href="{% url 'post_detail' post.author.username post.id %}" class="text-decoration-none ms-3">
+        Коментарі ({{ post.comment_count }})
+      </a>
     </div>
 
     <!-- короткий список коментарів -->

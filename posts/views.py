@@ -3,7 +3,7 @@ from django.views import View
 from django.views.generic import ListView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, JsonResponse
 from .models import Post, PostMedia, Comment, Like
 from .forms import PostForm
 from django.http import Http404
@@ -16,6 +16,18 @@ class FeedView(ListView):
 
     def get_queryset(self):
         return Post.objects.select_related('author').prefetch_related('media','likes','comments').order_by('-created_at')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        if user.is_authenticated:
+            liked_posts = set(Like.objects.filter(user=user).values_list('post_id', flat=True))
+            for post in context['posts']:
+                post.is_liked_by_user = post.id in liked_posts
+        else:
+            for post in context['posts']:
+                post.is_liked_by_user = False
+        return context
 
 class PostDetailView(DetailView):
     model = Post
@@ -50,14 +62,12 @@ class CreatePostView(LoginRequiredMixin, View):
             post = form.save(commit=False)
             post.author = request.user
             post.save()
-            # save media
             for idx, f in enumerate(files):
                 content_type = f.content_type.split('/')[0]
                 media_type = 'image' if content_type == 'image' else 'video' if content_type == 'video' else 'image'
                 PostMedia.objects.create(post=post, file=f, media_type=media_type, order=idx)
             return redirect('post_detail', username=post.author.username, pk=post.pk)
         return render(request, 'posts/create_post.html', {'form': form})
-
 
 @login_required
 def add_comment(request, post_id):
@@ -77,4 +87,15 @@ def toggle_like(request, post_id):
     like, created = Like.objects.get_or_create(post=post, user=request.user)
     if not created:
         like.delete()
-    return redirect(request.META.get('HTTP_REFERER', 'post_detail'))
+        is_liked = False
+    else:
+        is_liked = True
+    
+    # якщо AJAX запит — повернути JSON
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({
+            'is_liked': is_liked,
+            'like_count': post.like_count()
+        })
+    
+    return redirect(request.META.get('HTTP_REFERER', 'feed'))

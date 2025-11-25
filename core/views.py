@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from accounts.models import User
 from django.views.generic import DetailView
+from posts.models import Post
+from posts.models import Like
 
 # Create your views here.
 class ProfileDetailView(DetailView):
@@ -27,9 +29,18 @@ class ProfileDetailView(DetailView):
         if request_user and request_user.is_authenticated:
             is_following = Subscriber.objects.filter(from_user=request_user, to_user=profile).exists()
 
-        # Спроба підвантажити пости (якщо в проєкті є модель Post)
-        from posts.models import Post
+        # підвантажуємо пости автора
         posts = Post.objects.filter(author=profile).prefetch_related('media','likes','comments').order_by('-created_at')
+
+        # позначаємо, які пости вже лайкнув поточний користувач
+        if request_user and request_user.is_authenticated:
+            liked_posts = set(Like.objects.filter(user=request_user).values_list('post_id', flat=True))
+            for p in posts:
+                p.is_liked_by_user = p.id in liked_posts
+        else:
+            for p in posts:
+                p.is_liked_by_user = False
+
         context.update({
             'posts': posts,
             'followers': followers,

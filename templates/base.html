@@ -29,6 +29,41 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO"
         crossorigin="anonymous"></script>
+    <script>
+function toggleLike(postId, event) {
+    event.preventDefault();
+
+    fetch(`/posts/${postId}/like/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        const heart = data.is_liked ? '❤️' : '🤍';
+        const text = `${heart} ${data.like_count}`;
+
+        // Elements in feed
+        const countCard = document.getElementById(`like-count-${postId}`);
+        // Element in detail page
+        const countDetail = document.getElementById(`like-count-detail-${postId}`);
+
+        // Apply text + animation
+        [countCard, countDetail].forEach(el => {
+            if (el) {
+                el.textContent = text;
+
+                // Reset animation if it's already running
+                el.classList.remove('like-anim');
+                void el.offsetWidth; // force reflow (restart animation)
+                el.classList.add('like-anim');
+            }
+        });
+    })
+    .catch(err => console.error(err));
+}
+</script>
 </body>
 
 </html>

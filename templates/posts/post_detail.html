@@ -53,15 +53,19 @@
       <p>{{ post.content|linebreaksbr }}</p>
 
       <div class="d-flex align-items-center mb-3">
-        <form method="post" action="{% url 'toggle_like' post.id %}" class="me-3">
-          {% csrf_token %}
-          <button type="submit" class="btn btn-sm {% if is_liked %}btn-danger{% else %}btn-outline-danger{% endif %}">
-            ❤️ {{ post.like_count }}
-          </button>
-        </form>
-        <span class="text-muted">{{ post.comment_count }} коментарів</span>
-      </div>
-    </div>
+
+  <button id="like-btn-detail-{{ post.id }}" 
+          class="like-btn" 
+          onclick="toggleLike({{ post.id }}, event)">
+      <span id="like-count-detail-{{ post.id }}">
+        {% if is_liked %}❤️{% else %}🤍{% endif %}
+        {{ post.like_count }}
+      </span>
+  </button>
+
+  <span class="text-muted ms-3">{{ post.comment_count }} коментарів</span>
+</div>
+
 
     <!-- Коментарі -->
     <div class="card-footer">

@@ -23,7 +23,8 @@ class RegisterView(CreateView):
 class ProfileUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'accounts/edit_profile.html'
     form_class = UserProfileForm
-    success_url = reverse_lazy('profile')
+    def get_success_url(self):
+        return reverse_lazy('profile_detail', args=[self.request.user.id])
 
     def get_object(self):
         return self.request.user

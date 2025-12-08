@@ -1,12 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden, JsonResponse
 from .models import Post, PostMedia, Comment, Like
 from .forms import PostForm
 from django.http import Http404
+from django.urls import reverse_lazy
 
 class FeedView(ListView):
     model = Post
@@ -99,3 +100,22 @@ def toggle_like(request, post_id):
         })
     
     return redirect(request.META.get('HTTP_REFERER', 'feed'))
+
+class DeletePostView(LoginRequiredMixin, DeleteView):
+    model = Post
+    template_name = 'posts/post_confirm_delete.html'
+    success_url = reverse_lazy('feed')
+
+    def get_object(self):
+        post = super().get_object()
+        if post.author != self.request.user:
+            raise Http404("You can't delete this post")
+        return post
+
+    def get(self, request, *args, **kwargs):
+        # AJAX delete без шаблону підтвердження
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            post = self.get_object()
+            post.delete()
+            return JsonResponse({'success': True})
+        return super().get(request, *args, **kwargs)

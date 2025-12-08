@@ -8,23 +8,15 @@
     <div class="card-header d-flex align-items-center">
       <img src="{% if post.author.avatar %}{{ post.author.avatar.url }}{% endif %}" class="rounded-circle me-2"
         style="width:40px;height:40px;object-fit:cover;">
-      <a href="{% url 'profile_detail' post.author.id %}" class="fw-bold text-decoration-none">{{ post.author.username
-        }}</a>
+      <a href="{% url 'profile_detail' post.author.id %}" class="fw-bold text-decoration-none">{{ post.author.username}}</a>
       <span class="ms-auto text-muted small">{{ post.created_at|date:"d M Y H:i" }}</span>
-    </div>
-    <div class="card-header d-flex align-items-center justify-content-between">
-      <div class="d-flex align-items-center">
-        <img src="{% if post.author.avatar %}{{ post.author.avatar.url }}{% endif %}" class="rounded-circle me-2"
-          style="width:40px;height:40px;object-fit:cover;">
-        <a href="{% url 'profile_detail' post.author.id %}" class="fw-bold text-decoration-none">{{ post.author.username
-          }}</a>
-      </div>
       {% if request.user == post.author %}
       <button class="btn btn-sm btn-outline-danger" onclick="deletePost({{ post.id }}, '{{ post.author.username }}')">
         🗑️ Видалити
       </button>
       {% endif %}
     </div>
+  
     <!-- ...rest of template... -->
 
     <!-- додати скрипт у кінець -->
@@ -42,7 +34,7 @@
           .then(response => response.json())
           .then(data => {
             if (data.success) {
-              window.location.href = '/posts/';
+              window.location.href = {% url 'profile_detail' request.user.id %};
             }
           })
           .catch(err => console.error('Delete error:', err));
@@ -108,8 +100,7 @@
         <h6 class="mb-3">Коментарі</h6>
         {% for c in comments %}
         <div class="mb-2">
-          <strong><a href="{% url 'profile_detail' c.author.id %}" class="text-decoration-none">{{ c.author.username
-              }}</a></strong>
+          <strong><a href="{% url 'profile_detail' c.author.id %}" class="text-decoration-none">{{ c.author.username}}</a></strong>
           <p class="mb-0">{{ c.content }}</p>
           <small class="text-muted">{{ c.created_at|date:"d M Y H:i" }}</small>
         </div>

@@ -104,7 +104,9 @@ def toggle_like(request, post_id):
 class DeletePostView(LoginRequiredMixin, DeleteView):
     model = Post
     template_name = 'posts/post_confirm_delete.html'
-    success_url = reverse_lazy('feed')
+
+    def get_success_url(self):
+        return redirect("profile_detail", pk=self.request.user.id)
 
     def get_object(self):
         post = super().get_object()
@@ -112,10 +114,10 @@ class DeletePostView(LoginRequiredMixin, DeleteView):
             raise Http404("You can't delete this post")
         return post
 
-    def get(self, request, *args, **kwargs):
+    def delete(self, request, *args, **kwargs):
         # AJAX delete без шаблону підтвердження
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             post = self.get_object()
             post.delete()
             return JsonResponse({'success': True})
-        return super().get(request, *args, **kwargs)
+        return super().delete(request, *args, **kwargs)

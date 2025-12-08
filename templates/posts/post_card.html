@@ -2,8 +2,7 @@
   <div class="card-header d-flex align-items-center">
     <img src="{% if post.author.avatar %}{{ post.author.avatar.url }}{% endif %}" class="rounded-circle me-2"
       style="width:40px;height:40px;object-fit:cover;">
-    <a href="{% url 'profile_detail' post.author.id %}" class="fw-bold text-decoration-none">{{ post.author.username
-      }}</a>
+    <a href="{% url 'profile_detail' post.author.id %}" class="fw-bold text-decoration-none">{{ post.author.username}}</a>
   </div>
 
   {% if post.media.all %}
@@ -58,8 +57,7 @@
         <div class="d-flex align-items-center">
           <img src="{% if post.author.avatar %}{{ post.author.avatar.url }}{% endif %}" class="rounded-circle me-2"
             style="width:40px;height:40px;object-fit:cover;">
-          <a href="{% url 'profile_detail' post.author.id %}" class="fw-bold text-decoration-none">{{
-            post.author.username }}</a>
+          <a href="{% url 'profile_detail' post.author.id %}" class="fw-bold text-decoration-none">{{post.author.username }}</a>
         </div>
         {% if request.user == post.author %}
         <button class="btn btn-sm btn-outline-danger" onclick="deletePost({{ post.id }}, '{{ post.author.username }}')">

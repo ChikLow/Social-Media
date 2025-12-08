@@ -48,25 +48,14 @@
 
     <div class="d-flex align-items-center mb-2">
       <button id="like-btn-{{ post.id }}"
-        class="btn btn-sm {% if post.is_liked_by_user %}btn-danger{% else %}btn-outline-dark{% endif %}"
-        onclick="toggleLike({{ post.id }}, event)">
+        class="btn btn-sm {% if post.is_liked_by_user %}btn-danger{% else %}btn-outline-dark{% endif %} position-relative"
+        onclick="toggleLike({{ post.id }}, event)" style="z-index: 2;">
         <span id="like-icon-{{ post.id }}">{% if post.is_liked_by_user %}❤️{% else %}🤍{% endif %}</span>
         <span id="like-count-{{ post.id }}">{{ post.like_count }}</span>
       </button>
-      <div class="card-header d-flex align-items-center justify-content-between">
-        <div class="d-flex align-items-center">
-          <img src="{% if post.author.avatar %}{{ post.author.avatar.url }}{% endif %}" class="rounded-circle me-2"
-            style="width:40px;height:40px;object-fit:cover;">
-          <a href="{% url 'profile_detail' post.author.id %}" class="fw-bold text-decoration-none">{{post.author.username }}</a>
-        </div>
-        {% if request.user == post.author %}
-        <button class="btn btn-sm btn-outline-danger" onclick="deletePost({{ post.id }}, '{{ post.author.username }}')">
-          🗑️
-        </button>
-        {% endif %}
-      </div>
+      
 
-      <a href="{% url 'post_detail' post.author.username post.id %}" class="text-decoration-none ms-3">
+      <a href="{% url 'post_detail' post.author.username post.id %}" class="text-decoration-none ms-3 stretched-link">
         Коментарі ({{ post.comment_count }})
       </a>
     </div>

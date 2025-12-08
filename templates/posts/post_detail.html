@@ -11,8 +11,8 @@
       <a href="{% url 'profile_detail' post.author.id %}" class="fw-bold text-decoration-none">{{ post.author.username}}</a>
       <span class="ms-auto text-muted small">{{ post.created_at|date:"d M Y H:i" }}</span>
       {% if request.user == post.author %}
-      <button class="btn btn-sm btn-outline-danger" onclick="deletePost({{ post.id }}, '{{ post.author.username }}')">
-        🗑️ Видалити
+      <button class="btn btn-sm btn-outline-danger ms-3" onclick="deletePost({{ post.id }}, '{{ post.author.username }}')">
+        <i class="bi bi-trash3-fill"></i>
       </button>
       {% endif %}
     </div>
@@ -34,7 +34,7 @@
           .then(response => response.json())
           .then(data => {
             if (data.success) {
-              window.location.href = {% url 'profile_detail' request.user.id %};
+              window.location.href = "{% url 'profile_detail' request.user.id %}";
             }
           })
           .catch(err => console.error('Delete error:', err));

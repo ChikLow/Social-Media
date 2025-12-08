@@ -73,14 +73,12 @@
   <hr style="border-color: #444;">
 
   <!-- Пости користувача -->
-  <div class="row g-2">
-    <div class="col-12">
+  <div style="max-width: 900px;" class="mx-auto">
       {% for post in posts %}
         {% include 'posts/post_card.html' with post=post %}
       {% empty %}
         <p class="text-center mt-5">Немає публікацій</p>
       {% endfor %}
-    </div>
   </div>
   {% include 'sidebar.html' %}
 </div>

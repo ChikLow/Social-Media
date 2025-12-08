@@ -36,3 +36,94 @@
   cursor: pointer;
   font-size: 20px;
 }
+
+/* Sidebar styles */
+.sidebar {
+  width: 240px;
+  z-index: 1040;
+  transition: transform 0.3s ease;
+  padding-top: 80px; /* Added padding to avoid overlap */
+}
+
+.sidebar-overlay.active .logo-text{
+  margin-left: 60px;
+}
+/* Burger button styles */
+.burger-btn {
+  border: none;
+  padding: 8px 12px;
+  z-index: 1070; /* Increased z-index to avoid overlap */
+  position: fixed; /* Changed to absolute positioning */
+  top: 15px; /* Adjusted top position */
+  left: 1 px; /* Adjusted left position */
+}
+
+/* Ensure burger button does not overlap sidebar content */
+.burger-btn:hover {
+  background-color: #333 !important;
+}
+
+/* Overlay for mobile */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1030;
+  display: none;
+}
+
+.sidebar-overlay.active {
+  display: block;
+ 
+}
+
+/* Mobile: hide sidebar by default */
+@media (max-width: 991.98px) {
+  .sidebar {
+    transform: translateX(-100%);
+  }
+  
+  .sidebar.active {
+    transform: translateX(0);
+  }
+  
+  /* Adjust content wrapper on mobile */
+  .content-wrapper {
+    margin-left: 0 !important;
+    padding-top: 60px;
+  }
+}
+
+/* Desktop: sidebar always visible, content with margin */
+@media (min-width: 992px) {
+  .sidebar {
+    transform: translateX(0);
+  }
+  
+  .content-wrapper {
+    margin-left: 240px;
+  }
+}
+
+/* Fix horizontal scroll issue */
+body {
+  overflow-x: hidden;
+}
+
+.sidebar {
+  max-width: 240px;
+  padding-top: 60px;
+}
+
+.content-wrapper {
+  overflow-x: hidden;
+}
+
+/* Add margin to sidebar content */
+.sidebar a,
+.sidebar ul {
+  margin-top: 20px;
+}

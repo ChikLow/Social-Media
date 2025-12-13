@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Стрічка{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <!-- left column: sidebar -->
+    <div class="col-lg-3 d-none d-lg-block">
+      {% include 'sidebar.html' %}
+    </div>
+
+    <!-- center column: feed -->
+    <div class="col-lg-6 col-md-9">
+      <h3 class="mb-3 d-flex align-items-center justify-content-between">
+        <span>Стрічка</span>
+      </h3>
+
+      <div id="feed-container">
+        {% include 'posts/_posts_list.html' %}
+      </div>
+
+      <!-- loader -->
+      <div id="feed-loader" class="text-center py-3" style="display:none;">
+        <div class="spinner-border text-light" role="status"><span class="visually-hidden">Loading...</span></div>
+      </div>
+
+      {% if is_paginated %}
+      <div id="feed-pagination" data-has-next="{{ page_obj.has_next|yesno:'1,0' }}" data-next-page="{{ page_obj.next_page_number }}">
+      </div>
+      {% else %}
+      <div id="feed-pagination" data-has-next="0" data-next-page="">
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- right column: suggestions or empty -->
+    <div class="col-lg-3 d-none d-lg-block">
+      <!-- Optionally include suggestions, or an extra sidebar */}
+      <!-- {% include 'sidebar_right.html' %} -->
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  let isLoading = false;
+  // get initial page: next page number attribute or null
+  let nextPage = document.querySelector('#feed-pagination')?.dataset.nextPage || null;
+  let hasNext = document.querySelector('#feed-pagination')?.dataset.hasNext === '1';
+
+  function updatePagination(data) {
+      hasNext = !!data.has_next;
+      // Set nextPage to the returned next_page (or null)
+      nextPage = data.next_page || null;
+  }
+
+  function appendHtml(html) {
+      const container = document.getElementById('feed-container');
+      const temp = document.createElement('div');
+      temp.innerHTML = html;
+      while (temp.firstElementChild) {
+          container.appendChild(temp.firstElementChild);
+      }
+  }
+
+  async function loadNext() {
+      if (!hasNext || isLoading || !nextPage) return;
+      isLoading = true;
+      document.getElementById('feed-loader').style.display = 'block';
+      try {
+          const url = new URL(window.location.href);
+          url.searchParams.set('page', nextPage);
+          const resp = await fetch(url.toString(), {
+              headers: {'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json'}
+          });
+          if (!resp.ok) throw new Error('Network response not ok');
+          const data = await resp.json();
+          if (data.html) {
+              appendHtml(data.html);
+          }
+          updatePagination(data);
+      } catch (err) {
+          console.error('Error loading feed page:', err);
+      } finally {
+          isLoading = false;
+          document.getElementById('feed-loader').style.display = 'none';
+      }
+  }
+
+  // trigger load when we are near the bottom
+  window.addEventListener('scroll', function() {
+      if (!hasNext || isLoading || !nextPage) return;
+      const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+      if ((scrollable - window.scrollY) < 500) {
+          loadNext();
+      }
+  });
+
+})();
+</script>
+{% endblock %}

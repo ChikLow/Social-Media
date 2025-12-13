@@ -18,9 +18,11 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from posts.views import FeedView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', FeedView.as_view(), name='feed'),
     path("", include("accounts.urls")),
     path("", include("core.urls")),
     path('posts/', include('posts.urls')),

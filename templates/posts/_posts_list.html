@@ -1,0 +1,6 @@
+{% comment %} Partial that renders a page of posts (post_card includes the post card) {% endcomment %}
+{% for post in posts %}
+    {% include 'posts/post_card.html' with post=post %}
+{% empty %}
+    <p class="text-muted">Немає публікацій.</p>
+{% endfor %}

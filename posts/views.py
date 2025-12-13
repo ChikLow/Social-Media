@@ -8,6 +8,8 @@ from .models import Post, PostMedia, Comment, Like
 from .forms import PostForm
 from django.http import Http404
 from django.urls import reverse_lazy
+from django.template.loader import render_to_string
+from django.db.models import Case, When, Value, IntegerField, Q
 
 class FeedView(ListView):
     model = Post
@@ -16,8 +18,61 @@ class FeedView(ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        return Post.objects.select_related('author').prefetch_related('media','likes','comments').order_by('-created_at')
-    
+        """
+        Priority ordering:
+         - 2: mutual friends (both follow each other)
+         - 1: users current user follows
+         - 0: everyone else
+        Exclude current user's own posts.
+        """
+        qs = Post.objects.select_related('author').prefetch_related('media', 'likes', 'comments')
+
+        user = getattr(self.request, 'user', None)
+
+        if user and user.is_authenticated:
+            # Avoid circular imports by importing inside function
+            from accounts.models import Subscriber
+
+            following_ids = list(Subscriber.objects.filter(from_user=user).values_list('to_user_id', flat=True))
+            follower_ids = list(Subscriber.objects.filter(to_user=user).values_list('from_user_id', flat=True))
+            friends_ids = set(following_ids).intersection(set(follower_ids))
+
+            # Exclude the user's own posts
+            qs = qs.exclude(author=user)
+
+            # Annotate "priority" and order accordingly
+            qs = qs.annotate(
+                priority=Case(
+                    When(author__id__in=list(friends_ids), then=Value(2)),
+                    When(author__id__in=list(following_ids), then=Value(1)),
+                    default=Value(0),
+                    output_field=IntegerField(),
+                )
+            ).order_by('-priority', '-created_at')
+        else:
+            # show everyone (or use qs.none() to hide for anonymous users)
+            qs = qs.order_by('-created_at')
+
+        return qs
+
+    def render_to_response(self, context, **response_kwargs):
+        """
+        If this is an AJAX request (for pagination), return JSON containing the HTML slice,
+        plus has_next boolean and next_page number for the frontend.
+        """
+        request = self.request
+        page_obj = context.get('page_obj')
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            html = render_to_string('posts/_posts_list.html', context=context, request=request)
+            has_next = page_obj.has_next() if page_obj else False
+            next_page = page_obj.next_page_number() if has_next else None
+            return JsonResponse({
+                'html': html,
+                'has_next': has_next,
+                'next_page': next_page
+            })
+        return super().render_to_response(context, **response_kwargs)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.request.user

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User
+from .models import User, Subscriber
 
 
 @admin.register(User)
@@ -21,3 +21,10 @@ class CustomUserAdmin(UserAdmin):
     )
     search_fields = ('username', 'email')
     ordering = ('username',)
+
+
+@admin.register(Subscriber)
+class SubscriberAdmin(admin.ModelAdmin):
+    list_display = ('id','from_user','to_user','created_at')
+    search_fields = ('from_user__username','to_user__username')
+    list_filter = ('created_at',)

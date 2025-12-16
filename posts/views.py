@@ -117,6 +117,16 @@ class CreatePostView(LoginRequiredMixin, View):
         if form.is_valid():
             post = form.save(commit=False)
             post.author = request.user
+            # optional group
+            group = form.cleaned_data.get('group')
+            if group:
+                # check permissions: allow_public_posts or membership
+                if not group.allow_public_posts:
+                    # user must be a member
+                    if not group.members.filter(id=request.user.id).exists():
+                        from django.core.exceptions import PermissionDenied
+                        raise PermissionDenied("You must be a group member to post here")
+                post.group = group
             post.save()
             for idx, f in enumerate(files):
                 content_type = f.content_type.split('/')[0]

@@ -4,6 +4,7 @@ from core.models import TimeStampedModel
 
 class Post(TimeStampedModel):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="posts")
+    group = models.ForeignKey('groups.Group', null=True, blank=True, on_delete=models.CASCADE, related_name='posts')
     content = models.TextField(blank=True)
     # залишаємо image якщо потрібно, але використовуємо PostMedia для мульти-медіа
     # image = models.ImageField(upload_to="posts/", blank=True, null=True)

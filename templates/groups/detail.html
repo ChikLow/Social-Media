@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}{{ group.name }}{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex align-items-center mb-3">
+    <h2 class="me-3">{{ group.name }}</h2>
+    {% if user.is_authenticated %}
+      {% if is_member %}
+        <form method="post" action="{% url 'group_leave' group.slug %}">{% csrf_token %}
+          <button class="btn btn-outline-light btn-sm">Leave</button>
+        </form>
+      {% else %}
+        <form method="post" action="{% url 'group_join' group.slug %}">{% csrf_token %}
+          <button class="btn btn-primary btn-sm">Join</button>
+        </form>
+      {% endif %}
+    {% endif %}
+  </div>
+
+  <p class="text-muted">{{ group.description }}</p>
+
+  <hr>
+  <h5>Group posts</h5>
+  <div id="group-posts">
+    {% for post in posts %}
+      {% include 'posts/post_card.html' with post=post %}
+    {% empty %}
+      <p class="text-muted">No posts in this group yet.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

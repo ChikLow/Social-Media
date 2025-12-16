@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Create Group{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <h2>Створити групу</h2>
+  <form method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+      {{ form.name.label_tag }}
+      {{ form.name }}
+    </div>
+    <div class="mb-3">
+      {{ form.slug.label_tag }}
+      {{ form.slug }}
+      <div class="form-text">Optional — will be generated from the name if left blank.</div>
+    </div>
+    <div class="mb-3">
+      {{ form.description.label_tag }}
+      {{ form.description }}
+    </div>
+    <div class="mb-3 form-check">
+      {{ form.allow_public_posts }} {{ form.allow_public_posts.label_tag }}
+    </div>
+    <button class="btn btn-primary">Create</button>
+  </form>
+</div>
+{% endblock %}

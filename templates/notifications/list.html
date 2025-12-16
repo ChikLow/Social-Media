@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Сповіщення{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <h3>Сповіщення</h3>
+  <div class="list-group mt-3">
+    {% for n in notifications %}
+    <div class="list-group-item d-flex justify-content-between align-items-start {% if n.unread %}bg-dark border-secondary{% endif %}">
+      <div>
+        <strong>{% if n.actor %}{{ n.actor.username }}{% else %}System{% endif %}</strong>
+        &nbsp;{{ n.verb }}
+        <div class="small text-muted">{{ n.created_at }}</div>
+      </div>
+      <div>
+        {% if n.unread %}
+        <form method="post" action="{% url 'mark_notification_read' n.id %}">{% csrf_token %}
+          <button class="btn btn-sm btn-outline-light">Позначити прочитаним</button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+    {% empty %}
+      <p class="text-muted">Немає сповіщень.</p>
+    {% endfor %}
+  </div>
+
+  {% if is_paginated %}
+    <nav>
+      <ul class="pagination mt-3">
+        {% if page_obj.has_previous %}
+          <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
+        {% endif %}
+        <li class="page-item disabled"><span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
+        {% if page_obj.has_next %}
+          <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+  {% endif %}
+</div>
+{% endblock %}

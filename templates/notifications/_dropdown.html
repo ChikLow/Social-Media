@@ -1,0 +1,13 @@
+<div class="list-group">
+  {% for n in notifications %}
+    <a href="{% if n.target %}{% if n.target.__class__.__name__ == 'Post' %}{% url 'post_detail' n.target.author.username n.target.id %}{% endif %}{% else %}#{% endif %}" data-notif-id="{{ n.id }}" class="notif-item list-group-item list-group-item-action d-flex justify-content-between align-items-start {% if n.unread %}bg-dark{% endif %}">
+      <div>
+        <strong>{% if n.actor %}{{ n.actor.username }}{% else %}System{% endif %}</strong>
+        &nbsp;{{ n.verb }}
+        <div class="small text-muted">{{ n.created_at|timesince }} ago</div>
+      </div>
+    </a>
+  {% empty %}
+    <div class="list-group-item text-muted">No notifications</div>
+  {% endfor %}
+</div>

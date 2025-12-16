@@ -27,9 +27,27 @@
             </a>
         </li>
         <li class="nav-item mb-2">
-            <a href="#" class="nav-link text-white d-flex align-items-center">
-                <i class="bi bi-heart fs-4 me-3"></i> Сповіщення
+            <a href="{% url 'groups_list' %}" class="nav-link text-white d-flex align-items-center">
+                <i class="bi bi-people fs-4 me-3"></i> Групи
             </a>
+        </li>
+        <li class="nav-item mb-2">
+            <a href="{% url 'group_create' %}" class="nav-link text-white d-flex align-items-center">
+                <i class="bi bi-plus-circle fs-4 me-3"></i> Створити групу
+            </a>
+        </li>
+        <li class="nav-item mb-2">
+            <div class="dropdown">
+              <button class="btn btn-dark nav-link text-white d-flex align-items-center dropdown-toggle" id="notifDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false" style="border:0;background:transparent;">
+                <i class="bi bi-bell fs-4 me-3"></i>
+                Сповіщення
+                <span id="notif-count" class="badge bg-danger ms-2" style="display:none;">0</span>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-dark p-2" aria-labelledby="notifDropdownBtn" style="min-width:300px;">
+                <div id="notif-dropdown-content">Loading...</div>
+                <div class="text-center mt-2"><a href="{% url 'notifications' %}">Переглянути всі</a></div>
+              </ul>
+            </div>
         </li>
         <li class="nav-item">
             {% if user.is_authenticated %}
@@ -78,4 +96,62 @@ sidebarLinks.forEach(link => {
         }
     });
 });
+
+// Notifications dropdown fetching
+const notifBtn = document.getElementById('notifDropdownBtn');
+const notifContent = document.getElementById('notif-dropdown-content');
+const notifCount = document.getElementById('notif-count');
+
+async function fetchNotifications() {
+    try {
+        const resp = await fetch('{% url "notifications_dropdown" %}', {
+            headers: {'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json'}
+        });
+        if (!resp.ok) throw new Error('Network error');
+        const data = await resp.json();
+        notifContent.innerHTML = data.html;
+        if (data.unread_count && data.unread_count > 0) {
+            notifCount.style.display = 'inline-block';
+            notifCount.textContent = data.unread_count;
+        } else {
+            notifCount.style.display = 'none';
+        }
+    } catch (err) {
+        notifContent.innerHTML = '<div class="p-2 text-muted">Unable to load</div>';
+        console.error('notif error', err);
+    }
+}
+
+// Fetch when dropdown is shown
+if (notifBtn) {
+    notifBtn.addEventListener('show.bs.dropdown', function () {
+        fetchNotifications();
+    });
+    // optional: poll every 30s for unread count update
+    setInterval(fetchNotifications, 30000);
+
+    // mark notification read when clicked and navigate
+    document.getElementById('notif-dropdown-content').addEventListener('click', async function(e) {
+        const item = e.target.closest('.notif-item');
+        if (!item) return;
+        e.preventDefault();
+        const nid = item.dataset.notifId;
+        const href = item.getAttribute('href');
+        try {
+            await fetch(`/notifications/${nid}/read/`, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            });
+            // refresh count/content
+            fetchNotifications();
+        } catch (err) {
+            console.error('mark read error', err);
+        }
+        if (href && href !== '#') window.location = href;
+    });
+}
+
 </script>

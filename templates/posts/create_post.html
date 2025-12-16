@@ -12,6 +12,11 @@
       <label for="id_media" class="form-label">Фото/відео (можна декілька)</label>
       <input type="file" name="media" id="id_media" multiple accept="image/*,video/*" class="form-control"/>
     </div>
+
+    <div class="mb-3">
+      <label for="id_group" class="form-label">Group (optional)</label>
+      {{ form.group }}
+    </div>
     
     <button type="submit" class="btn btn-primary">Опублікувати</button>
   </form>
